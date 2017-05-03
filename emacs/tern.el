@@ -71,13 +71,18 @@
         (cl-loop for cur = project-dir then (let ((shorter (file-name-directory (directory-file-name cur))))
                                               (and (< (length shorter) (length cur)) shorter))
                  while cur do
-                 (when (file-exists-p (expand-file-name ".tern-project" cur))
+                 (when (tern-is-project-dir-p cur)
                    (cl-return (setf project-dir cur))))
         (setf tern-project-dir project-dir)))
   ;; Track the file name to detect if it changed, which means the project
   ;; directory needs to be found again.
   (setf tern-last-file-name (buffer-file-name))
   tern-project-dir)
+
+(defun tern-is-project-dir-p (dir)
+  (or
+   (file-exists-p (expand-file-name ".tern-project" dir))
+   (file-exists-p (expand-file-name ".git" dir))))
 
 (defun tern-known-port ()
   ;; Invalidate the port when the project directory changes, since a new
